@@ -9,10 +9,24 @@ Request and response are the same as that in [go-openai](https://github.com/sash
 ## Usage
 To use:
 ```bash
-go get github.com/huweiATgithub/chatgpt-apiserver
+go install github.com/huweiATgithub/chatgpt-apiserver@latest
 chatgpt-apiserver
 ```
 Make sure you have a config in `${Working directory}/config/openai.json`, see [openai.json](config/openai.json) for an example.
+
+## Docker
+Build yourself:
+```bash
+docker build -t chatgpt-apiserver .
+docker run -p 8080:8080 -v ${Directory to config}:/config chatgpt-apiserver
+```
+
+Use the one I built:
+```
+docker run -p 8080:8080 -v ${Directory to config}:/config weihu0/chatgpt-apiserver:latest
+```
+
+
 
 
 ## TODOs:
