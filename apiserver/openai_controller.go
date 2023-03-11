@@ -3,6 +3,7 @@ package apiserver
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"log"
@@ -21,18 +22,32 @@ type OpenAIConfig struct {
 	Proxy  string `json:"proxy"`
 }
 
-// ReadConfig reads the config from file
-func (o *OpenAIConfig) ReadConfig(configPath string) {
+// ReadConfigFile reads the config from file
+func (o *OpenAIConfig) ReadConfigFile(configPath string) (err error) {
 	jsonFile, err := os.Open(configPath)
 	if err != nil {
-		panic(err)
+		return
 	}
 	defer jsonFile.Close()
 	byteValue, _ := io.ReadAll(jsonFile)
 	err = json.Unmarshal(byteValue, o)
 	if err != nil {
-		panic(err)
+		return
 	}
+	return
+}
+
+// ReadConfigEnv reads the config from environment variables
+func (o *OpenAIConfig) ReadConfigEnv() (err error) {
+	err = nil
+	o.ApiKey = os.Getenv("OPENAI_API_KEY")
+	// ApiKey is required
+	if o.ApiKey == "" {
+		err = errors.New("OPENAI_API_KEY is required")
+		return
+	}
+	o.Proxy = os.Getenv("http_proxy")
+	return
 }
 
 // convertRequest converts the request from the unified request to the request of the specific API.
