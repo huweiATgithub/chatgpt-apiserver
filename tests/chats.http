@@ -1,9 +1,29 @@
+### Localhost
 POST localhost:8080/v1/chat/completions
 Content-Type: application/json
 
 {
   "Model": "gpt-3.5-turbo",
   "Messages": [
-    {"Role":  "user", "Content":  "Hello World!"}
+    {
+      "Role": "user",
+      "Content": "Hello World!"
+    }
   ]
+}
+
+
+### Localhost: stream
+POST localhost:8080/v1/chat/completions
+Content-Type: application/json
+
+{
+  "Model": "gpt-3.5-turbo",
+  "Messages": [
+    {
+      "Role": "user",
+      "Content": "Hello World!"
+    }
+  ],
+  "Stream": true
 }

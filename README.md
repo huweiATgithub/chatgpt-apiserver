@@ -3,7 +3,10 @@ This package is intended to start an API server that is able to handle chat comp
 One can configure several handlers to achieve high performance and bypass rate limits of a single handler.
 
 ## API
-Request and response are the same as that in [go-openai](https://github.com/sashabaranov/go-openai), see [doc](https://pkg.go.dev/github.com/frankzhao/openai-go).
+Request and response are the same as that in [go-openai](https://github.com/sashabaranov/go-openai), see [doc](https://pkg.go.dev/github.com/sashabaranov/go-openai).
+### Stream
+For stream responses, similar to OpenAI's official [API](https://platform.openai.com/docs/api-reference/chat/create#chat/create-stream), the server will send data-only server-sent events.
+Data is a JSON object defined as [ChatCompletionStreamResponse](https://pkg.go.dev/github.com/sashabaranov/go-openai#ChatCompletionStreamResponse).
 
 
 ## Usage

@@ -2,6 +2,7 @@ package apiserver
 
 import (
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 )
 
@@ -28,14 +29,34 @@ func CompleteChat(pool ControllersPool) gin.HandlerFunc {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-
 		controller := pool.Get()
-		response, err := controller.CompleteChat(request)
-
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
+		if request.Stream {
+			stream, err := controller.CompleteChatStream(request)
+			defer stream.Close()
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+			c.Stream(func(w io.Writer) bool {
+				resp, err := stream.Recv()
+				if err == io.EOF {
+					c.SSEvent("", getStreamFinishData())
+					return false
+				}
+				if err != nil {
+					c.AbortWithError(http.StatusInternalServerError, err)
+					return false
+				}
+				c.SSEvent("", resp)
+				return true
+			})
+		} else {
+			response, err := controller.CompleteChat(request)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+			c.JSON(http.StatusOK, response)
 		}
-		c.JSON(http.StatusOK, response)
 	}
 }

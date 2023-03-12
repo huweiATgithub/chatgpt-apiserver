@@ -23,6 +23,10 @@ type OpenAIConfig struct {
 	Proxy  string `json:"proxy"`
 }
 
+type OpenAIStream struct {
+	stream *openai.ChatCompletionStream
+}
+
 // NewOpenAIController creates a new OpenAIController.
 func NewOpenAIController(config OpenAIConfig) *OpenAIController {
 	openaiConfig := openai.DefaultConfig(config.ApiKey)
@@ -104,6 +108,30 @@ func convertResponse(r *openai.ChatCompletionResponse) (response *ChatCompletion
 	return
 }
 
+// concertStreamResponse converts the stream response from the stream response of the specific API to the unified stream response.
+func convertStreamResponse(r *openai.ChatCompletionStreamResponse) (response *ChatCompletionStreamResponse, err error) {
+	_response := *r
+	response = &_response
+	err = nil
+	return
+}
+
+// Recv implement ChatCompletionStream interface for OpenAIStream
+func (o *OpenAIStream) Recv() (response ChatCompletionStreamResponse, err error) {
+	resp, err := o.stream.Recv()
+	if err != nil {
+		return
+	}
+	r, err := convertStreamResponse(&resp)
+	response = *r
+	return
+}
+
+// Close implement ChatCompletionStream interface for OpenAIStream
+func (o *OpenAIStream) Close() {
+	o.stream.Close()
+}
+
 // CompleteChat implement the interface
 func (o *OpenAIController) CompleteChat(r *ChatCompletionRequest) (response *ChatCompletionResponse, err error) {
 	request, err := convertRequest(r)
@@ -121,5 +149,21 @@ func (o *OpenAIController) CompleteChat(r *ChatCompletionRequest) (response *Cha
 		return
 	}
 	response, err = convertResponse(&resp)
+	return
+}
+
+// CompleteChatStream implement the interface
+func (o *OpenAIController) CompleteChatStream(r *ChatCompletionRequest) (stream ChatCompletionStream, err error) {
+	request, err := convertRequest(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// Process the input data, generate a completion, and package it in the response struct
+	s, err := o.client.CreateChatCompletionStream(
+		context.Background(),
+		*request,
+	)
+	stream = &OpenAIStream{stream: s}
 	return
 }
