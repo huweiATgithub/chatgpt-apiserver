@@ -18,17 +18,15 @@ func main() {
 	openaiConfigFile := flag.String("openai_config_file", "", "path to the openai config file")
 	flag.Parse()
 
-	// Create openai controller
-	controller := apiserver.NewOpenAIController(*apiserver.NewOpenAIConfig(*openaiConfigFile))
-
 	// Create controllers pool
-	pool := apiserver.SimpleControllersPool{
-		Controllers: []apiserver.Controller{controller},
-	}
+	pool := apiserver.NewControllersPoolRandom([]apiserver.Controller{
+		apiserver.NewOpenAIController(*apiserver.NewOpenAIConfig(*openaiConfigFile)),
+		apiserver.NewOpenAIController(*apiserver.NewOpenAIConfig(*openaiConfigFile)),
+	})
 
 	r := gin.Default()
 	r.GET("/status", statusOK)
-	r.POST("/v1/chat/completions", apiserver.CompleteChat(&pool))
+	r.POST("/v1/chat/completions", apiserver.CompleteChat(pool))
 	if err := r.Run(":" + *port); err != nil {
 		log.Fatal(err)
 	}

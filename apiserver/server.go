@@ -3,7 +3,9 @@ package apiserver
 import (
 	"github.com/gin-gonic/gin"
 	"io"
+	"math/rand"
 	"net/http"
+	"time"
 )
 
 // ControllersPool The interface for the pool of controllers.
@@ -11,14 +13,26 @@ type ControllersPool interface {
 	Get() Controller
 }
 
-// SimpleControllersPool A simple implementation of ControllersPool.
-type SimpleControllersPool struct {
+// ControllersPoolRandom A simple implementation of ControllersPool.
+type ControllersPoolRandom struct {
 	Controllers []Controller
+	n           int
+	generator   *rand.Rand
 }
 
 // Get implements the interface. Currently, we just return the first controller.
-func (s *SimpleControllersPool) Get() Controller {
-	return s.Controllers[0]
+func (s *ControllersPoolRandom) Get() Controller {
+	return s.Controllers[s.generator.Intn(s.n)]
+}
+
+// NewControllersPoolRandom Creates a new ControllersPoolRandom.
+func NewControllersPoolRandom(controllers []Controller) *ControllersPoolRandom {
+
+	return &ControllersPoolRandom{
+		Controllers: controllers,
+		n:           len(controllers),
+		generator:   rand.New(rand.NewSource(time.Now().UnixNano())),
+	}
 }
 
 // CompleteChat handles the chat completion endpoint.
