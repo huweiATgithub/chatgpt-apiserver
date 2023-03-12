@@ -8,29 +8,42 @@ Request and response are the same as that in [go-openai](https://github.com/sash
 For stream responses, similar to OpenAI's official [API](https://platform.openai.com/docs/api-reference/chat/create#chat/create-stream), the server will send data-only server-sent events.
 Data is a JSON object defined as [ChatCompletionStreamResponse](https://pkg.go.dev/github.com/sashabaranov/go-openai#ChatCompletionStreamResponse).
 
+## Configurations
+The server can be configured through command line flags with config file.
+```
+Usage of ./chatgpt-apiserver:
+  -config_file string
+        path to the server config file
+  -openai_config_file string
+        path to the openai config file
+  -port string
+        port to listen on
+```
+- `config_file` is the path to the server config file. See [config.json](config/config.json) for an example.
+- `openai_config_file` is the path to the openai config file. See [openai.json](config/openai.json) for an example.
+   If this is set, an OpenAI controller will always be added.
+- `port` is the port to listen on. Default is `8080`.
 
-## Usage
+### Environment Variables
+- `OPENAI_API_KEY` is the OpenAI API key. If this is set, it will be used to create an OpenAI controller. (proxy is read from `http_proxy`)
+
+## Simple Usage
 To use:
 ```bash
 go install github.com/huweiATgithub/chatgpt-apiserver@latest
-chatgpt-apiserver --openai_config_file ${PATH_TO_OPENAI_CONFIG} --port ${PORT}
+chatgpt-apiserver
 ```
-See [openai.json](config/openai.json) for an example of openai config file.
-
-You can also set the environment variable `OPENAI_API_KEY` instead. (Proxy set with `http_proxy`).
 
 ## Docker
 Build yourself:
 ```bash
 docker build -t chatgpt-apiserver .
-docker run -p 8080:8080 -v ${Path to the config file}:/config/openai.json chatgpt-apiserver --openai_config_file /config/openai.json
+docker run -p 8080:8080 -v {Mount Your configuration file} chatgpt-apiserver
 ```
 You can also use [weihu0/chatgpt-apiserver](http://hub.docker.com/r/weihu0/chatgpt-apiserver) I built.
-
-
 
 
 ## TODOs:
 - [ ] Add more controllers
 - [ ] Implement a load balance pool
-- [ ] Allow to configure the apiserver from file
+- [x] Allow to configure the apiserver from file

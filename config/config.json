@@ -1,0 +1,15 @@
+{
+  "port": "1234",
+  "controllers": [
+    {
+      "type": "openai",
+      "config": {
+        "api_key": "your_api_key"
+      }
+    },
+    {
+      "type": "openai",
+      "config_file": "config/openai.json"
+    }
+  ]
+}

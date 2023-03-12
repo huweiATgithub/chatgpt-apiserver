@@ -48,20 +48,33 @@ func NewOpenAIController(config OpenAIConfig) *OpenAIController {
 	return &controller
 }
 
-// NewOpenAIConfig creates a new OpenAIConfig.
-func NewOpenAIConfig(configFilePath string) *OpenAIConfig {
-
+// NewOpenAIConfigFromFile creates a new OpenAIConfig.
+func NewOpenAIConfigFromFile(configFilePath string) (*OpenAIConfig, error) {
 	var config OpenAIConfig
-	if configFilePath != "" {
-		if err := config.readConfigFile(configFilePath); err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		if err := config.readConfigEnv(); err != nil {
-			log.Fatal(err)
-		}
+	err := config.readConfigFile(configFilePath)
+	return &config, err
+}
+
+// NewOpenAIConfigFromEnv creates a new OpenAIConfig.
+func NewOpenAIConfigFromEnv() (*OpenAIConfig, error) {
+	var config OpenAIConfig
+	err := config.readConfigEnv()
+	return &config, err
+}
+
+func NewOpenAIConfigFromMap(m map[string]string) (*OpenAIConfig, error) {
+	var config OpenAIConfig
+	var err error = nil
+	api, ok := m["api_key"]
+	if !ok {
+		err = errors.New("api_key is required")
 	}
-	return &config
+	config.ApiKey = api
+
+	if proxy, ok := m["proxy"]; ok {
+		config.Proxy = proxy
+	}
+	return &config, err
 }
 
 // readConfigFile reads the config from file
