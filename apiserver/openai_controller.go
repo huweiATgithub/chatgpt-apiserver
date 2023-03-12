@@ -14,7 +14,8 @@ import (
 
 // OpenAIController The controller for OpenAI.
 type OpenAIController struct {
-	Config OpenAIConfig
+	config OpenAIConfig
+	client *openai.Client
 }
 
 type OpenAIConfig struct {
@@ -22,9 +23,46 @@ type OpenAIConfig struct {
 	Proxy  string `json:"proxy"`
 }
 
-// ReadConfigFile reads the config from file
-func (o *OpenAIConfig) ReadConfigFile(configPath string) (err error) {
-	jsonFile, err := os.Open(configPath)
+// NewOpenAIController creates a new OpenAIController.
+func NewOpenAIController(config OpenAIConfig) *OpenAIController {
+	openaiConfig := openai.DefaultConfig(config.ApiKey)
+	if config.Proxy != "" {
+		proxyUrl, err := url.Parse(config.Proxy)
+		if err != nil {
+			panic(err)
+		}
+		transport := &http.Transport{
+			Proxy: http.ProxyURL(proxyUrl),
+		}
+		openaiConfig.HTTPClient = &http.Client{
+			Transport: transport,
+		}
+	}
+	openaiConfig.HTTPClient = &http.Client{}
+	client := openai.NewClientWithConfig(openaiConfig)
+	controller := OpenAIController{config, client}
+	return &controller
+}
+
+// NewOpenAIConfig creates a new OpenAIConfig.
+func NewOpenAIConfig(configFilePath string) *OpenAIConfig {
+
+	var config OpenAIConfig
+	if configFilePath != "" {
+		if err := config.readConfigFile(configFilePath); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if err := config.readConfigEnv(); err != nil {
+			log.Fatal(err)
+		}
+	}
+	return &config
+}
+
+// readConfigFile reads the config from file
+func (o *OpenAIConfig) readConfigFile(configFilePath string) (err error) {
+	jsonFile, err := os.Open(configFilePath)
 	if err != nil {
 		return
 	}
@@ -37,8 +75,8 @@ func (o *OpenAIConfig) ReadConfigFile(configPath string) (err error) {
 	return
 }
 
-// ReadConfigEnv reads the config from environment variables
-func (o *OpenAIConfig) ReadConfigEnv() (err error) {
+// readConfigEnv reads the config from environment variables
+func (o *OpenAIConfig) readConfigEnv() (err error) {
 	err = nil
 	o.ApiKey = os.Getenv("OPENAI_API_KEY")
 	// ApiKey is required
@@ -74,22 +112,7 @@ func (o *OpenAIController) CompleteChat(r *ChatCompletionRequest) (response *Cha
 		return
 	}
 	// Process the input data, generate a completion, and package it in the response struct
-	openaiConfig := openai.DefaultConfig(o.Config.ApiKey)
-	if o.Config.Proxy != "" {
-		proxyUrl, err := url.Parse(o.Config.Proxy)
-		if err != nil {
-			panic(err)
-		}
-		transport := &http.Transport{
-			Proxy: http.ProxyURL(proxyUrl),
-		}
-		openaiConfig.HTTPClient = &http.Client{
-			Transport: transport,
-		}
-	}
-	openaiConfig.HTTPClient = &http.Client{}
-	client := openai.NewClientWithConfig(openaiConfig)
-	resp, err := client.CreateChatCompletion(
+	resp, err := o.client.CreateChatCompletion(
 		context.Background(),
 		*request,
 	)

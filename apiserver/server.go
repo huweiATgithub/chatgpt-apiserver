@@ -20,12 +20,6 @@ func (s *SimpleControllersPool) Get() Controller {
 	return s.Controllers[0]
 }
 
-// readRequest reads the request from the context and returns the request as the unified ChatCompletionRequest type.
-func readRequest(c *gin.Context) (request *ChatCompletionRequest, err error) {
-	err = c.BindJSON(&request)
-	return
-}
-
 // CompleteChat handles the chat completion endpoint.
 func CompleteChat(pool ControllersPool) gin.HandlerFunc {
 	return func(c *gin.Context) {
