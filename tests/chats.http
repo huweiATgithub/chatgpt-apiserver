@@ -12,6 +12,9 @@ Content-Type: application/json
   ]
 }
 
+### Localhost
+GET localhost:8080/v1/chat/completions
+
 
 ### Localhost: stream
 POST localhost:8080/v1/chat/completions

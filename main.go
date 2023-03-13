@@ -34,6 +34,11 @@ func NewDefaultConfig() *Config {
 	}
 }
 
+func allowOriginAll(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Next()
+}
+
 func main() {
 	port := flag.String("port", "", "port to listen on")
 	openaiConfigFile := flag.String("openai_config_file", "", "path to the openai config file")
@@ -98,10 +103,12 @@ func main() {
 	// Create controllers pool
 	log.Printf("Create controllers pool with %v controllers\n", len(controllers))
 	pool := apiserver.NewControllersPoolRandom(controllers)
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Logger(), gin.Recovery())
+	r.Use(allowOriginAll)
 	r.GET("/status", statusOK)
 	r.POST("/v1/chat/completions", apiserver.CompleteChat(pool))
-	if err := r.Run(":" + *port); err != nil {
+	if err := r.Run(":" + config.Port); err != nil {
 		log.Fatal(err)
 	}
 }
