@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/huweiATgithub/chatgpt-apiserver/apiserver"
 	"io"
@@ -32,11 +33,6 @@ func NewDefaultConfig() *Config {
 	return &Config{
 		Port: "8080",
 	}
-}
-
-func allowOriginAll(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Next()
 }
 
 func main() {
@@ -105,7 +101,8 @@ func main() {
 	pool := apiserver.NewControllersPoolRandom(controllers)
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
-	r.Use(allowOriginAll)
+	r.Use(cors.Default())
+
 	r.GET("/status", statusOK)
 	r.POST("/v1/chat/completions", apiserver.CompleteChat(pool))
 	if err := r.Run(":" + config.Port); err != nil {
