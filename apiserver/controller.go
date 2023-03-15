@@ -21,8 +21,8 @@ type ChatCompletionStream interface {
 	Close()
 }
 
-func getStreamFinishData() []string {
-	return []string{"DONE"}
+func getStreamFinishData() any {
+	return "[DONE]"
 }
 
 // Controller The interface for the controller.
