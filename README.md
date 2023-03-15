@@ -10,22 +10,20 @@ Data is a JSON object defined as [ChatCompletionStreamResponse](https://pkg.go.d
 
 ## Configurations
 The server can be configured through command line flags with config file.
-```
-Usage of ./chatgpt-apiserver:
-  -config_file string
-        path to the server config file
-  -openai_config_file string
-        path to the openai config file
-  -port string
-        port to listen on
-```
-- `config_file` is the path to the server config file. See [config.json](config/config.json) for an example.
-- `openai_config_file` is the path to the openai config file. See [openai.json](config/openai.json) for an example.
-   If this is set, an OpenAI controller will always be added.
-- `port` is the port to listen on. Default is `8080`.
+To configure the server, you need to create a config file. Its json format example can be found [here](config/chatgpt-apiserver.json).
+User can hint the configuration file or its search path by:
+- command line flags
+   - `config_file` is the path to the server config file.
+   - `config_path` is the path to the directory that contains the server config file. Default is will search (in order):
+     - .
+     - .config
+     - /etc/chatgpt-apiserver
+- environment variables
+   - `CHATGPT_APISERVER_CONFIG_FILE` or `CONFIG_FILE` is the path to the server config file.
+   - `CHATGPT_APISERVER_CONFIG_PATH` or `CONFIG_PATH` is the path to the directory that contains the server config file.
 
-### Environment Variables
-- `OPENAI_API_KEY` is the OpenAI API key. If this is set, it will be used to create an OpenAI controller. (proxy is read from `http_proxy`)
+### Controller
+- OpenAIController can be configured through a config file or directly in above config file. Its json format example can be found [here](config/openai.json).
 
 ## Simple Usage
 To use:

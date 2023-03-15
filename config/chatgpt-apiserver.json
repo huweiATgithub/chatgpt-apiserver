@@ -1,5 +1,5 @@
 {
-  "port": "1234",
+  "port": "8080",
   "controllers": [
     {
       "type": "openai",
@@ -9,7 +9,7 @@
     },
     {
       "type": "openai",
-      "config_file": "config/openai.json"
+      "config_file": "path_to_config"
     }
   ]
 }

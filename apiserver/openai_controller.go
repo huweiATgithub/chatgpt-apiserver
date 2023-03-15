@@ -2,10 +2,9 @@ package apiserver
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"github.com/sashabaranov/go-openai"
-	"io"
+	"github.com/spf13/viper"
 	"log"
 	"net/http"
 	"net/url"
@@ -79,16 +78,13 @@ func NewOpenAIConfigFromMap(m map[string]string) (*OpenAIConfig, error) {
 
 // readConfigFile reads the config from file
 func (o *OpenAIConfig) readConfigFile(configFilePath string) (err error) {
-	jsonFile, err := os.Open(configFilePath)
+	config := viper.New()
+	config.SetConfigFile(configFilePath)
+	err = config.ReadInConfig()
 	if err != nil {
 		return
 	}
-	defer jsonFile.Close()
-	byteValue, _ := io.ReadAll(jsonFile)
-	err = json.Unmarshal(byteValue, o)
-	if err != nil {
-		return
-	}
+	err = config.Unmarshal(o)
 	return
 }
 
