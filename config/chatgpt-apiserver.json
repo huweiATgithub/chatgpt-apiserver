@@ -1,8 +1,12 @@
 {
   "port": "8080",
+  "pool": {
+    "type": "balanced"
+  },
   "controllers": [
     {
       "type": "openai",
+      "weight": 5,
       "config": {
         "api_key": "your_api_key"
       }

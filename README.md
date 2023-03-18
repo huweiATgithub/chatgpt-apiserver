@@ -4,9 +4,15 @@ One can configure several handlers to achieve high performance and bypass rate l
 
 ## API
 Request and response are the same as that in [go-openai](https://github.com/sashabaranov/go-openai), see [doc](https://pkg.go.dev/github.com/sashabaranov/go-openai).
+
 ### Stream
 For stream responses, similar to OpenAI's official [API](https://platform.openai.com/docs/api-reference/chat/create#chat/create-stream), the server will send data-only server-sent events.
 Data is a JSON object defined as [ChatCompletionStreamResponse](https://pkg.go.dev/github.com/sashabaranov/go-openai#ChatCompletionStreamResponse).
+
+### Errors
+- The server will return `http.StatusBadRequest` if the request is invalid.
+- The server will return `http.InternalServerError` if the request is valid but the handler fails to handle it.
+    The OpenAI side errors are mapped to `http.InternalServerError` (with the error message?) (I did not get the error message...)
 
 ## Configurations
 The server can be configured through command line flags with config file.
@@ -42,6 +48,7 @@ You can also use [weihu0/chatgpt-apiserver](http://hub.docker.com/r/weihu0/chatg
 
 
 ## TODOs:
-- [ ] Add more controllers
-- [ ] Implement a load balance pool
+- [x] Implement a load balance pool
 - [x] Allow to configure the apiserver from file
+- [ ] Disable Controller if exceeding its usage limit
+ 

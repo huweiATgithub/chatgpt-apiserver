@@ -14,12 +14,18 @@ func main() {
 
 type ControllerConfig struct {
 	Type       string            `mapstructure:"type"`
+	Weight     int               `mapstructure:"weight"`
 	Config     map[string]string `mapstructure:"config"`
 	ConfigFile string            `mapstructure:"config_file"`
 }
 
+type PoolConfig struct {
+	Type string `mapstructure:"type"`
+}
+
 type Config struct {
 	Port        string             `mapstructure:"port"`
+	Pool        PoolConfig         `mapstructure:"pool"`
 	Controllers []ControllerConfig `mapstructure:"controllers"`
 }
 
@@ -27,6 +33,8 @@ type Server struct {
 	r      *gin.Engine
 	config *Config
 }
+
+const defaultWeight = 1
 
 func (s *Server) Start() {
 	if err := s.r.Run(":" + s.config.Port); err != nil {

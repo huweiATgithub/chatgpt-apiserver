@@ -6,7 +6,5 @@ RUN go build -o /chatgpt-apiserver
 
 FROM alpine:3.17
 COPY --from=builder /chatgpt-apiserver /chatgpt-apiserver
-EXPOSE 8080
-VOLUME /config
 WORKDIR /
 CMD ["/chatgpt-apiserver"]
